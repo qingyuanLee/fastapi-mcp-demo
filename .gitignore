@@ -1,0 +1,34 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+# IDE
+.idea/
+
+# 临时输出/调试文件
+*.out
+*.log
+bisect_*.txt
+call_*.txt
+chk_*.txt
+e2e_*.txt
+init_*.txt
+legacy_*.txt
+list_*.txt
+mlog_*.txt
+plain_post.*
+server_*.log
+repro_*.py
+probe_*.py
+chk_*.py
+probe_out.txt
+repro_*_out.txt
+init_body.json
+init_resp_*.txt
+call_help.txt

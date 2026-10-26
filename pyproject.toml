@@ -1,0 +1,24 @@
+[project]
+name = "fastapi-mcp"
+version = "0.1.0"
+description = "特征平台 MCP 封装模块验证项目（fastmcp 4.1.0 / fastapi 0.138 / httpx 0.28）"
+readme = "README.md"
+requires-python = ">=3.12"
+# 依赖版本声明（caret 语义等价展开）：
+#   fastmcp ^4.1.0   ⟺ >=4.1.0,<5.0.0   （uv PEP 621 原生格式，语义与 Poetry caret 一致）
+#   fastapi ^0.138.2 ⟺ >=0.138.2,<0.139.0
+#   httpx   ^0.28.1  ⟺ >=0.28.1,<0.29.0
+# 注：fastmcp 4.x 内部依赖 httpx2（包名 httpx2，2.x），由 fastmcp 自动带入，无需在此声明；
+#     本项目的 ASGITransport / InternalJWTAuth 代码使用 httpx2。
+dependencies = [
+    "fastapi>=0.138.2,<0.139.0",
+    "fastmcp>=4.1.0,<5.0.0",
+    "httpx>=0.28.1,<0.29.0",
+]
+
+[tool.uv]
+package = false
+
+[[tool.uv.index]]
+url = "https://mirrors.aliyun.com/pypi/simple/"
+default = true
