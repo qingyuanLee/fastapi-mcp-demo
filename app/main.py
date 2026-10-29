@@ -1,4 +1,13 @@
 """主应用：业务路由 + 中间件 + MCP 挂载（fastmcp 4.1.0 适配版）"""
+import sys
+from pathlib import Path
+
+# 将 app 的父目录（项目根目录）加入 sys.path
+project_root = Path(__file__).resolve().parent.parent
+if str(project_root) not in sys.path:
+    sys.path.insert(0, str(project_root))
+
+from Demos.EvtFormatMessage import main
 
 import httpx2  # fastmcp 4.x 内部依赖 httpx2（httpx 2.x 新包名）
 import logging
@@ -13,6 +22,7 @@ from app.api.offline import router as offline_router
 from app.api.realtime import router as realtime_router
 from app.api.legacy import router as legacy_router
 from app.api.naming import router as naming_router
+from app.api.auth import router as auth_router
 from app.internal_jwt import InternalJWTAuth
 from app.mcp_auth import auth
 from app.middleware.access_log import AccessLogMiddleware
@@ -119,10 +129,13 @@ app.add_middleware(McpAccessLogMiddleware)
 app.add_middleware(McpInitializeSessionResetMiddleware)
 
 # 7. 业务路由（对外业务 API，与 business_app 同源）
+#    注意：auth_router（登录）只挂主 app，不进 business_app——
+#    login 不需要 MCP 工具形态，避免污染 from_fastapi 的路由扫描
 app.include_router(meta_router, prefix="/api/v1")
 app.include_router(realtime_router, prefix="/api/v1")
 app.include_router(offline_router, prefix="/api/v1")
 app.include_router(legacy_router, prefix="/api/v1")
+app.include_router(auth_router, prefix="/api/v1")
 
 
 @app.get("/health")
@@ -132,3 +145,19 @@ async def health():
 
 # 8. 最后挂载 MCP 子应用
 app.mount("/mcp", mcp_app)
+
+def main():
+    try:
+        import uvicorn
+        uvicorn.run(
+            app=f'{Path(__file__).stem}:app',
+            host="127.0.0.1",
+            port=8089,
+            reload=False,
+        )
+    except Exception as e:
+        logging.error(f"FastAPI start failed: {e}")
+
+
+if __name__ == "__main__":
+    main()

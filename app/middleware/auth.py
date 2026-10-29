@@ -18,6 +18,9 @@ class JwtAuthMiddleware(AuthenticationBackend):
         # 公开路径：健康检查
         if conn.url.path == "/health":
             return AuthCredentials(["anonymous"]), {"id": "anonymous"}
+        # 公开路径：登录接口（无 token 匿名访问，凭据校验在接口内完成）
+        if conn.url.path.startswith("/api/v1/login"):
+            return AuthCredentials(["anonymous"]), {"id": "anonymous"}
         # 方案一：/mcp 放行业务认证（MCP 层自行校验业务 JWT，verify_exp: False）
         if conn.url.path.startswith("/mcp"):
             return AuthCredentials(["authenticated"]), {"id": "mcp"}

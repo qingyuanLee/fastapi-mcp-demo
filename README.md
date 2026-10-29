@@ -69,6 +69,29 @@ uv run uvicorn app.main:app --host 127.0.0.1 --port 8000
 - 业务 JWT：校验 exp + 自动续期（响应头 `X-New-Access-Token`）。
 - `/mcp` token：签名 + 用户有效性严格校验，**跳过 exp、不续期**（客户端自管生命周期）。
 
+## 用户登录接口（2026-10-29）
+
+`POST /api/v1/login` —— 仅用户名签发业务 JWT，返回 `access_token + user_id`。
+
+```json
+// 请求：username 兼容 user id 或 name
+{"username": "u_demo_001"}
+{"username": "demo"}
+
+// 响应
+{"access_token": "<业务JWT>", "token_type": "bearer", "user_id": "u_demo_001"}
+```
+
+- 凭据：内存用户表（`app/services/user.py`），按 id 优先、name 次之匹配；
+  不存在 / 未激活 → 401。
+- Token：HS256 + `settings.jwt_secret`，`sub=user_id`，exp=1 小时，
+  与 `e2e_call.py` 签发方式一致，登录后可直接调业务 API 和 `/mcp`。
+- 放行：`JwtAuthMiddleware` 将 `/api/v1/login` 加入匿名白名单（同 `/health`）。
+- 不暴露 MCP：auth router 不打 `mcp_public` 标签，`mcp.enable(only=True)` 自动过滤，
+  工具列表无 login（已实测）。
+
+实现文件：`app/api/auth.py`（新建）、`app/middleware/auth.py`（放行）、`app/main.py`（挂载）。
+
 ## 验证脚本
 
 | 脚本 | 说明 |

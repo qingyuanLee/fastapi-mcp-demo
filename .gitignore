@@ -32,3 +32,6 @@ repro_*_out.txt
 init_body.json
 init_resp_*.txt
 call_help.txt
+login_e2e_out.txt
+e2e_after_login.txt
+.openidea/
